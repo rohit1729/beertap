@@ -6,4 +6,6 @@ import lombok.Data;
 public class CreateTapDto {
     public String name;
     public Float flowPerSecond;
+    private Long promoterId;
+    private Long beerId;
 }

@@ -6,5 +6,5 @@ import lombok.Data;
 public class BeerDto {
     private Long id; 
     private String name;
-    private String pricePerLitre;
+    private Float pricePerLitre;
 }

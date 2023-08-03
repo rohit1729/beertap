@@ -58,6 +58,8 @@ public class TapController {
         Tap tap = new Tap();
         tap.setName(createTapDto.name);
         tap.setFlowPerSecond(createTapDto.flowPerSecond);
+        tap.setPromoterId(createTapDto.getPromoterId());
+        tap.setBeerId(createTapDto.getBeerId());
         try {
             tap = tapService.createTap(tap);
             return new ResponseEntity<>(ApiHelper.toTapDto(tap), HttpStatus.CREATED);

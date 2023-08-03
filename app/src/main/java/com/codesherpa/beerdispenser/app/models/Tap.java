@@ -21,4 +21,7 @@ public class Tap {
 
     @Column(name = "flow_per_second")
     private Float flowPerSecond;
+
+    private Long promoterId;
+    private Long beerId;
 }
