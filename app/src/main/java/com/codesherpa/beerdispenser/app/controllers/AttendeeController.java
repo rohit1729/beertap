@@ -59,7 +59,7 @@ public class AttendeeController {
             attendee = attendeeRepository.save(attendee);
             return new ResponseEntity<>(attendee, HttpStatus.OK);
         } catch(Exception e) {
-            return new ResponseEntity<>(new ServerException("Error creating attendee"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(new ServerException(e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
