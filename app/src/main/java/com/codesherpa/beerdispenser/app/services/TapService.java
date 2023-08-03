@@ -24,7 +24,7 @@ public class TapService {
         return tapRepository.findById(id).orElse(null);
     }
     
-    public Iterable<Tap> getAllTaps() {
+    public List<Tap> getAllTaps() {
         return tapRepository.findAll();
     }
     

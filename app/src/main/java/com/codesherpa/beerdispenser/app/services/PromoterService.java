@@ -1,5 +1,7 @@
 package com.codesherpa.beerdispenser.app.services;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +22,7 @@ public class PromoterService {
     return promoterRepository.findById(id).orElse(null);
   }
 
-  public Iterable<Promoter> getAllPromoters() {
+  public List<Promoter> getAllPromoters() {
     return promoterRepository.findAll();
   }
 

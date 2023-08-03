@@ -24,7 +24,7 @@ public class BeerService {
         return beerRepository.findById(id).orElse(null);
     }
     
-    public Iterable<Beer> getAllBeers() {
+    public List<Beer> getAllBeers() {
         return beerRepository.findAll();
     }
     

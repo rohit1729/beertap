@@ -5,6 +5,8 @@ import org.springframework.stereotype.Service;
 import com.codesherpa.beerdispenser.app.models.Admin;
 import com.codesherpa.beerdispenser.app.repositories.AdminRepository;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 @Service
@@ -21,7 +23,7 @@ public class AdminService {
         return adminRepository.findById(id).orElse(null);
     }
 
-    public Iterable<Admin> getAllAdmins() {
+    public List<Admin> getAllAdmins() {
         return adminRepository.findAll();
     }
 

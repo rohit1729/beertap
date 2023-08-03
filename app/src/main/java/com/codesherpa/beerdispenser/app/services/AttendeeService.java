@@ -7,6 +7,8 @@ import com.codesherpa.beerdispenser.app.models.Attendee;
 import com.codesherpa.beerdispenser.app.repositories.AttendeeRepository;
 import com.codesherpa.beerdispenser.app.utils.ApiHelper;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 @Service
@@ -23,7 +25,7 @@ public class AttendeeService {
         return attendeeRepository.findById(id).orElse(null);
     }
 
-    public Iterable<Attendee> getAllAttendees() {
+    public List<Attendee> getAllAttendees() {
         return attendeeRepository.findAll();
     }
 
