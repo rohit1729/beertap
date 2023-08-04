@@ -30,7 +30,7 @@ It allows you to:
 ### Installing
 Clone the repository
 
-git clone https://github.com/rohit1729/beer-dispenser-app.git
+git clone https://github.com/rohit1729/beer-dispenser-app.git --no-checkout --filter=blob:limit=50m
 
 ### Build using Gradle
 ./gradlew build
