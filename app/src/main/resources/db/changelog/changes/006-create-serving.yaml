@@ -1,0 +1,74 @@
+databaseChangeLog:
+  - changeSet:
+      id: 006-create-serving
+      author: rohit
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - tableExists:
+                tableName: serving
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: serving_pkey
+                  name: id
+                  type: BIGINT
+              - column:
+                  constraints:
+                    nullable: false
+                  name: flow_per_second
+                  type: float
+              - column:
+                  constraints:
+                    nullable: false
+                  name: price_per_litre
+                  type: float
+              - column:
+                  constraints:
+                    nullable: true
+                  name: start_time
+                  type: timestamp
+              - column:
+                  constraints:
+                    nullable: true
+                  name: end_time
+                  type: timestamp
+              - column:
+                  constraints:
+                    nullable: false
+                    foreignKeyName: beer_pkey
+                    references: beer(id)
+                  name: beer_id
+                  type: BIGINT
+              - column:
+                  constraints:
+                    nullable: false
+                    foreignKeyName: promoter_pkey
+                    references: promoter(id)
+                  name: promoter_id
+                  type: BIGINT
+              - column:
+                  constraints:
+                    nullable: false
+                    foreignKeyName: attendee_pkey
+                    references: attendee(id)
+                  name: attendee_id
+                  type: BIGINT
+              - column:
+                  constraints:
+                    nullable: false
+                  name: created_at
+                  type: timestamp
+                  defaultValue: CURRENT_TIMESTAMP
+              - column:
+                  constraints:
+                    nullable: false
+                  name: updated_at
+                  type: timestamp
+                  defaultValue: CURRENT_TIMESTAMP
+            tableName: serving

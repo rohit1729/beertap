@@ -1,0 +1,71 @@
+databaseChangeLog:
+  - changeSet:
+      id: 005-create-tap
+      author: rohit
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - tableExists:
+                tableName: tap
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: tap_pkey
+                  name: id
+                  type: BIGINT
+              - column:
+                  constraints:
+                    nullable: false
+                  name: name
+                  type: VARCHAR(250)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: flow_per_second
+                  type: float
+              - column:
+                  constraints:
+                    nullable: false
+                  name: active
+                  type: boolean
+                  defaultValueBoolean: false
+              - column:
+                  constraints:
+                    nullable: true
+                  name: promoter_id
+                  type: BIGINT
+              - column:
+                  constraints:
+                    nullable: true
+                  name: beer_id
+                  type: BIGINT
+              - column:
+                  constraints:
+                    nullable: false
+                  name: created_at
+                  type: timestamp
+                  defaultValue: CURRENT_TIMESTAMP
+              - column:
+                  constraints:
+                    nullable: false
+                  name: updated_at
+                  type: timestamp
+                  defaultValue: CURRENT_TIMESTAMP
+            tableName: tap
+        - addForeignKeyConstraint:
+            baseTableName: tap
+            baseColumnNames: beer_id
+            referencedTableName: beer
+            referencedColumnNames: id
+            constraintName: FK_tap_beer
+        - addForeignKeyConstraint:
+            baseTableName: tap
+            baseColumnNames: promoter_id
+            referencedTableName: promoter
+            referencedColumnNames: id
+            constraintName: FK_tap_promoter

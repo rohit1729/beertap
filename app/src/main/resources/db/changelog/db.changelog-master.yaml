@@ -1,5 +1,13 @@
 databaseChangeLog:
   - include:
-      file: classpath:/db/changelog/changes/001-initial-schema.sql
+      file: classpath:/db/changelog/changes/001-create-attendee.yaml
   - include:
-      file: classpath:/db/changelog/changes/001-initial-schema.sql
+      file: classpath:/db/changelog/changes/002-create-admin.yaml
+  - include:
+      file: classpath:/db/changelog/changes/003-create-promoter.yaml
+  - include:
+      file: classpath:/db/changelog/changes/004-create-beer.yaml
+  - include:
+      file: classpath:/db/changelog/changes/005-create-tap.yaml
+  - include:
+      file: classpath:/db/changelog/changes/006-create-serving.yaml
