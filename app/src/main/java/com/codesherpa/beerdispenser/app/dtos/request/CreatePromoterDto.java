@@ -11,6 +11,6 @@ public class CreatePromoterDto {
 
     @NotNull(message = ExceptionMessage.PROMOTER_NAME_NULL)
     @NotEmpty(message = ExceptionMessage.PROMOTER_NAME_BLANK)
-    public String name;
+    private String name;
     private boolean active;
 }
