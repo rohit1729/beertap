@@ -1,8 +1,8 @@
 package com.codesherpa.beerdispenser.app.services;
 
-import java.sql.Time;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,6 +54,14 @@ public class ServingService {
         serving.setFlowPerSecond(tap.getFlowPerSecond());
         serving.setPricePerLitre(beer.getPricePerLitre());
         serving.setStartTime(Timestamp.from(Instant.now()));
+        return servingRepository.save(serving);
+    }
+
+    public Serving updateEndTime(Serving serving, Timestamp endTime){
+        serving.setEndTime(endTime);
+        Long servingDuration = ChronoUnit.SECONDS.between(serving.getEndTime().toInstant(), serving.getStartTime().toInstant());
+        Float total = serving.getPricePerLitre() * servingDuration * serving.getFlowPerSecond();
+        serving.setTotal(total);
         return servingRepository.save(serving);
     }
 }

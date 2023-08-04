@@ -3,7 +3,6 @@ package com.codesherpa.beerdispenser.app.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,9 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.codesherpa.beerdispenser.app.dtos.ServingDto;
-import com.codesherpa.beerdispenser.app.dtos.TapDto;
 import com.codesherpa.beerdispenser.app.dtos.request.CreateServingDto;
-import com.codesherpa.beerdispenser.app.dtos.request.CreateTapDto;
+import com.codesherpa.beerdispenser.app.dtos.request.UpdateServingDto;
 import com.codesherpa.beerdispenser.app.models.Attendee;
 import com.codesherpa.beerdispenser.app.models.Serving;
 import com.codesherpa.beerdispenser.app.models.Tap;
@@ -95,26 +93,19 @@ public class ServingController {
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<Object> addServing(@RequestBody CreateServingDto createServingDto) {
+    public ResponseEntity<Object> updateServing(@RequestBody UpdateServingDto updateServingDto, @PathVariable Long servingId) {
         try {
-            Tap tap = tapService.getTap(createServingDto.tapId);
-            Attendee attendee = attendeeService.getAttendee(createServingDto.attendeeId);
-
-            if (tap != null && attendee != null){
-                if (tap.getBeerId() == null || tap.getPromoterId() == null){
-                    return new ResponseEntity<>("Tap with id: "+createServingDto.tapId+" not set", HttpStatus.UNPROCESSABLE_ENTITY);
-                }
-                return new ResponseEntity<>(ApiHelper.toServingDto(servingService.startServing(createServingDto)), HttpStatus.OK);
-            }else{
-                List<ServerException> exceptions = new ArrayList<>();
-                if (tap == null){
-                    exceptions.add(new ServerException("Tap with id: "+createServingDto.tapId+" not found"));
-                }
-                if (attendee == null){
-                    exceptions.add(new ServerException("Attendee with id: "+createServingDto.attendeeId+ "not found"));
-                }
-                return new ResponseEntity<>(exceptions, HttpStatus.BAD_REQUEST);
+            if (updateServingDto.endTime == null){
+                return new ResponseEntity<>(new ServerException("Serving has invalid end time"),
+                    HttpStatus.BAD_REQUEST);
             }
+
+            Serving serving = servingService.getServing(servingId);
+            if (serving != null){
+                return new ResponseEntity<>(new ServerException("Serving with id: "+servingId+ "not found"),
+                    HttpStatus.BAD_REQUEST);
+            }
+            return new ResponseEntity<>(servingService.updateEndTime(serving, updateServingDto.endTime), HttpStatus.OK);
         }catch (Exception e){
             return new ResponseEntity<>(new ServerException("Error creating serving"),
                     HttpStatus.INTERNAL_SERVER_ERROR);

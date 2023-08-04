@@ -2,6 +2,8 @@ package com.codesherpa.beerdispenser.app.controllers;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +25,8 @@ import com.codesherpa.beerdispenser.app.utils.ApiHelper;
 @RestController
 @RequestMapping("/promoters")
 public class PromoterController {
+
+    Logger logger = LoggerFactory.getLogger(PromoterController.class);
 
     @Autowired
     private PromoterService promoterService;
@@ -63,6 +67,7 @@ public class PromoterController {
             promoter = promoterService.createPromoter(promoter);
             return new ResponseEntity<>(ApiHelper.toPromoterDto(promoter), HttpStatus.CREATED);
         } catch (Exception e) {
+            logger.error("Error encountered creating promoter", e);
             return new ResponseEntity<>(new ServerException("Error creating promoter"),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -79,4 +84,14 @@ public class PromoterController {
         }
     }
 
+    @GetMapping("/{id}/earnings")
+    public ResponseEntity<Object> getEarnings(@PathVariable Long id) {
+        try {
+            promoterService.deletePromoter(id);
+            return new ResponseEntity<>(id, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new ServerException("Error deleting promoter: " + id),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }
