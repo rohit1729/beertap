@@ -34,10 +34,10 @@ git clone https://github.com/rohit1729/beer-dispenser-app.git --no-checkout --fi
 ```
 
 ### Build using Gradle
-./gradlew build
+```./gradlew build```
 
 ### Run the application
-./gradlew bootRun
+```./gradlew bootRun```
 
 ### Running the JAR file directly
 * Download the jar file from here https://github.com/rohit1729/beertap/blob/main/beerdispenser-app.jar
