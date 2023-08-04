@@ -27,7 +27,7 @@ databaseChangeLog:
                   constraints:
                     nullable: false
                   name: flow_per_second
-                  type: float
+                  type: decimal
               - column:
                   constraints:
                     nullable: false

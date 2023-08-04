@@ -1,5 +1,6 @@
 package com.codesherpa.beerdispenser.app.services;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -44,17 +45,16 @@ public class PromoterService {
         Map<String, Object> earnings = new HashMap<>();
         List<Serving> servings = servingRepository.findByPromoterId(id);
         String totalKey = "total";
-        earnings.put(totalKey, 0F);
+        earnings.put(totalKey, new BigDecimal(0));
         earnings.put("servings", new ArrayList<Serving>());
         servings.forEach((serving) -> {
             if (serving.getEndTime() == null) {
                 // Serving is still active, so count the total till now
-                Float total = serving.getFlowPerSecond()
-                        * ChronoUnit.SECONDS.between(serving.getStartTime().toInstant(), Instant.now())
-                        * serving.getPricePerLitre();
-                earnings.put(totalKey, (total + (Float) earnings.get(totalKey)));
+                BigDecimal total = serving.getFlowPerSecond().multiply(serving.getPricePerLitre())
+                .multiply(BigDecimal.valueOf(ChronoUnit.SECONDS.between(serving.getStartTime().toInstant(), Instant.now())));
+                earnings.put(totalKey, (total.add((BigDecimal)earnings.get(totalKey))));
             } else {
-                earnings.put(totalKey, ((Float) earnings.get(totalKey) + serving.getTotal()));
+                earnings.put(totalKey, (serving.getTotal().add((BigDecimal) earnings.get(totalKey))));
             }
         });
         earnings.put("servings", servings);

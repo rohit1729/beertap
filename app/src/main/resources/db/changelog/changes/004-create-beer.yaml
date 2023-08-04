@@ -27,7 +27,7 @@ databaseChangeLog:
                   constraints:
                     nullable: false
                   name: price_per_litre
-                  type: float
+                  type: decimal
               - column:
                   constraints:
                     nullable: false

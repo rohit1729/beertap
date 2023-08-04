@@ -1,5 +1,7 @@
 package com.codesherpa.beerdispenser.app.models;
 
+import java.math.BigDecimal;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -19,8 +21,8 @@ public class Tap {
 
     private String name;
 
-    @Column(name = "flow_per_second")
-    private Float flowPerSecond;
+    @Column(name = "flow_per_second", scale = 3)
+    private BigDecimal flowPerSecond;
 
     private Long promoterId;
     private Long beerId;

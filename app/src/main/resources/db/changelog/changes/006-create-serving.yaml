@@ -22,12 +22,12 @@ databaseChangeLog:
                   constraints:
                     nullable: false
                   name: flow_per_second
-                  type: float
+                  type: decimal
               - column:
                   constraints:
                     nullable: false
                   name: price_per_litre
-                  type: float
+                  type: decimal
               - column:
                   constraints:
                     nullable: true
@@ -42,7 +42,7 @@ databaseChangeLog:
                   constraints:
                     nullable: true
                   name: total
-                  type: float
+                  type: decimal
               - column:
                   constraints:
                     nullable: false

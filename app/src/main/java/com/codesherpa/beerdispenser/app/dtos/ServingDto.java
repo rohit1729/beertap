@@ -1,5 +1,6 @@
 package com.codesherpa.beerdispenser.app.dtos;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 
 import lombok.Data;
@@ -13,7 +14,7 @@ public class ServingDto {
     public Long tapId;
     public Long promoterId;
     public Long attendeeId;
-    public Float flowPerSecond;
-    public Float pricePerLitre;
-    public Float total;
+    public BigDecimal flowPerSecond;
+    public BigDecimal pricePerLitre;
+    public BigDecimal total;
 }

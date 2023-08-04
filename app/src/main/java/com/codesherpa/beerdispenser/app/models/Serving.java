@@ -1,5 +1,6 @@
 package com.codesherpa.beerdispenser.app.models;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -40,13 +41,14 @@ public class Serving {
     @Column(name="attendee_id")
     private Long attendeeId;
 
-    @Column(name="flow_per_second")
-    private Float flowPerSecond;
+    @Column(name="flow_per_second", scale = 3)
+    private BigDecimal flowPerSecond;
 
-    @Column(name="price_per_litre")
-    private Float pricePerLitre;
+    @Column(name="price_per_litre", scale = 3)
+    private BigDecimal pricePerLitre;
 
-    private Float total;
+    @Column(name="total", scale = 3)
+    private BigDecimal total;
 
     @CreationTimestamp
     @Column(name = "created_at")

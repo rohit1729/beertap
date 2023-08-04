@@ -1,5 +1,7 @@
 package com.codesherpa.beerdispenser.app.models;
 
+import java.math.BigDecimal;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -20,5 +22,5 @@ public class Beer {
     private String name;
 
     @Column(name = "price_per_litre")
-    private Float pricePerLitre;
+    private BigDecimal pricePerLitre;
 }

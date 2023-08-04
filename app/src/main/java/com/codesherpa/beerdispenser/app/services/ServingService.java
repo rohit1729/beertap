@@ -1,6 +1,7 @@
 package com.codesherpa.beerdispenser.app.services;
 
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -61,8 +62,9 @@ public class ServingService {
 
     public Serving updateEndTime(Serving serving, Timestamp endTime){
         serving.setEndTime(endTime);
-        Long servingDuration = ChronoUnit.SECONDS.between(serving.getEndTime().toInstant(), serving.getStartTime().toInstant());
-        Float total = serving.getPricePerLitre() * servingDuration * serving.getFlowPerSecond();
+        BigDecimal servingDuration = BigDecimal.valueOf(
+            ChronoUnit.SECONDS.between(serving.getEndTime().toInstant(), serving.getStartTime().toInstant()));
+        BigDecimal total = serving.getPricePerLitre().multiply(servingDuration).multiply(serving.getFlowPerSecond());
         serving.setTotal(total);
         return servingRepository.save(serving);
     }

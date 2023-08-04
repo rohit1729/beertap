@@ -48,7 +48,7 @@ public class PromoterController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Object> getPromoterById(
-        @PathVariable @Min(value = 0, message = ExceptionMessage.PROMOTER_ID_INVALID) Long id) {
+        @PathVariable @Min(value = 1, message = ExceptionMessage.PROMOTER_ID_INVALID) Long id) {
         try {
             Promoter promoter = promoterService.getPromoter(id);
             if (promoter != null) {

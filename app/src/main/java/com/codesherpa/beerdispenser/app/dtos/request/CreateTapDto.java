@@ -1,5 +1,7 @@
 package com.codesherpa.beerdispenser.app.dtos.request;
 
+import java.math.BigDecimal;
+
 import com.codesherpa.beerdispenser.app.exceptions.ExceptionMessage;
 import com.codesherpa.beerdispenser.app.models.Tap;
 
@@ -16,19 +18,19 @@ public class CreateTapDto {
     public String name;
 
     @DecimalMin(value = "0.0", inclusive = true, message = ExceptionMessage.TAP_FLOW_PER_LITRE_INVALID)
-    public Float flowPerSecond;
+    public BigDecimal flowPerSecond;
 
-    @Min(value = 0, message = ExceptionMessage.PROMOTER_ID_INVALID)
+    @Min(value = 1, message = ExceptionMessage.PROMOTER_ID_INVALID)
     private Long promoterId;
 
-    @Min(value = 0, message = ExceptionMessage.BEER_ID_INVALID)
+    @Min(value = 1, message = ExceptionMessage.BEER_ID_INVALID)
     private Long beerId;
 
     public Tap toTap(){
         Tap tap = new Tap();
         tap.setBeerId(this.beerId);
         tap.setPromoterId(this.promoterId);
-        tap.setFlowPerSecond(this.flowPerSecond)
+        tap.setFlowPerSecond(this.flowPerSecond);
         tap.setName(this.name);
         return tap;
     }

@@ -42,6 +42,8 @@ public class ApiHelper {
         TapDto dto = new TapDto();
         dto.setId(tap.getId());
         dto.setName(tap.getName());
+        dto.setPromoterId(tap.getPromoterId());
+        dto.setBeerId(tap.getBeerId());
         return dto;
     }
     
