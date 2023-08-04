@@ -30,7 +30,7 @@ It allows you to:
 ### Installing
 Clone the repository
 
-git clone https://github.com/<username>/beer-dispenser-app.git
+git clone https://github.com/rohit1729/beer-dispenser-app.git
 
 ### Build using Gradle
 ./gradlew build
