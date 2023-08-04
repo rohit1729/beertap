@@ -1,18 +1,16 @@
 package com.codesherpa.beerdispenser.app.dtos.request;
 
+import com.codesherpa.beerdispenser.app.exceptions.ExceptionMessage;
+
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
 public class CreateServingDto {
 
-    @NotNull(message = "tapId should not be null")
-    @Min(value = 1, message = "tapId should be greater than 1")
+    @Min(value = 1, message = ExceptionMessage.TAP_ID_INVALID)
     public Long tapId;
 
-
-    @NotNull(message = "attendeeId should not be null")
-    @Min(value = 1, message = "attendeeId should be greater than 1")
+    @Min(value = 1, message = ExceptionMessage.ATTENDEE_ID_INVALID)
     public Long attendeeId;
 }

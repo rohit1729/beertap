@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.codesherpa.beerdispenser.app.dtos.AttendeeDto;
@@ -27,6 +28,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 
 @RestController
+@RequestMapping("/attendees")
 public class AttendeeController {
 
     Logger logger = LoggerFactory.getLogger(AttendeeController.class);
@@ -34,7 +36,7 @@ public class AttendeeController {
     @Autowired
     private AttendeeService attendeeService;
 
-    @GetMapping("/attendees")
+    @GetMapping
     public ResponseEntity<Object> getAllAttendees() {
         try{
             List<AttendeeDto> attendees = attendeeService.getAllAttendees()
@@ -46,7 +48,7 @@ public class AttendeeController {
         }
     }
 
-    @GetMapping("/attendees/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<Object> getAttendeeById(
         @PathVariable @Min(value = 1, message = ExceptionMessage.ATTENDEE_ID_INVALID) Long id) {
         try{
@@ -62,7 +64,7 @@ public class AttendeeController {
         }
     }
 
-    @DeleteMapping("/attendees/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteAttendeeById(
         @PathVariable @Min(value = 1, message = ExceptionMessage.ATTENDEE_ID_INVALID) Long id) {
         try {
@@ -74,7 +76,7 @@ public class AttendeeController {
         }
     }
 
-    @PostMapping("/attendees")
+    @PostMapping
     public ResponseEntity<Object> addAttendee(@Valid @RequestBody CreateAttendeeDto attendeeDto) {
         Attendee attendee = new Attendee();
         attendee.setName(attendeeDto.name);

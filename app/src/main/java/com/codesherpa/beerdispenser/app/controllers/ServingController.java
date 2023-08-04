@@ -49,17 +49,20 @@ public class ServingController {
     private AttendeeService attendeeService;
 
     @GetMapping
-    public ResponseEntity<List<ServingDto>> getAllServings() {
+    public ResponseEntity<Object> getAllServings() {
         try {
             List<Serving> servings = servingService.getAllServings();
             return new ResponseEntity<>(servings.stream().map(ApiHelper::toServingDto).toList(), HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            logger.error(ExceptionMessage.SERVING_LIST_500, e);
+            return new ResponseEntity<>(new ServerException(ExceptionMessage.SERVING_LIST_500), 
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Object> getServingById(@PathVariable @Min(1) Long id) {
+    public ResponseEntity<Object> getServingById(
+        @PathVariable @Min(value = 1, message = ExceptionMessage.SERVING_ID_INVALID) Long id) {
         try {
             Serving serving = servingService.getServing(id);
             if (serving != null) {
@@ -69,44 +72,46 @@ public class ServingController {
                 return new ResponseEntity<>("", HttpStatus.NOT_FOUND);
             }
         } catch (Exception e) {
-            return new ResponseEntity<>(new ServerException("Error fetching serving: " + id),
+            logger.error(ExceptionMessage.SERVING_GET_500, e);
+            return new ResponseEntity<>(new ServerException(ExceptionMessage.SERVING_GET_500+id),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @PostMapping
     public ResponseEntity<Object> addServing(@Valid @RequestBody CreateServingDto createServingDto) {
-        Tap tap = tapService.getTap(createServingDto.tapId);
-        Attendee attendee = attendeeService.getAttendee(createServingDto.attendeeId);
+        try {
+            Tap tap = tapService.getTap(createServingDto.tapId);
+            Attendee attendee = attendeeService.getAttendee(createServingDto.attendeeId);
 
-        if (tap != null && attendee != null){
-            if (tap.getBeerId() == null || tap.getPromoterId() == null){
-                return new ResponseEntity<>("Tap with id: "+createServingDto.tapId+" not set", HttpStatus.UNPROCESSABLE_ENTITY);
+            if (tap != null && attendee != null){
+                if (tap.getBeerId() == null || tap.getPromoterId() == null){
+                    return new ResponseEntity<>(new ServerException(ExceptionMessage.TAP_NOT_SET), HttpStatus.UNPROCESSABLE_ENTITY);
+                }
+                return new ResponseEntity<>(ApiHelper.toServingDto(servingService.startServing(createServingDto)), HttpStatus.OK);
+            }else{
+                List<ServerException> exceptions = new ArrayList<>();
+                if (tap == null){
+                    exceptions.add(new ServerException(ExceptionMessage.TAP_NOT_FOUND+createServingDto.tapId));
+                }
+                if (attendee == null){
+                    exceptions.add(new ServerException(ExceptionMessage.ATTENDEE_NOT_FOUND+createServingDto.attendeeId));
+                }
+                return new ResponseEntity<>(exceptions, HttpStatus.BAD_REQUEST);
             }
-            return new ResponseEntity<>(ApiHelper.toServingDto(servingService.startServing(createServingDto)), HttpStatus.OK);
-        }else{
-            List<ServerException> exceptions = new ArrayList<>();
-            if (tap == null){
-                exceptions.add(new ServerException("Tap with id: "+createServingDto.tapId+" not found"));
-            }
-            if (attendee == null){
-                exceptions.add(new ServerException("Attendee with id: "+createServingDto.attendeeId+ "not found"));
-            }
-            return new ResponseEntity<>(exceptions, HttpStatus.BAD_REQUEST);
+        }catch (Exception e){
+            logger.error(ExceptionMessage.SERVING_POST_500, e);
+            return new ResponseEntity<>(new ServerException(ExceptionMessage.SERVING_POST_500), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Object> updateServing(@RequestBody UpdateServingDto updateServingDto, @PathVariable Long id) {
+    public ResponseEntity<Object> updateServing(@Valid @RequestBody UpdateServingDto updateServingDto, 
+        @PathVariable @Min(value = 1, message = ExceptionMessage.SERVING_ID_INVALID) Long id) {
         try {
-            if (updateServingDto.endTime == null){
-                return new ResponseEntity<>(new ServerException("Serving has invalid end time"),
-                    HttpStatus.BAD_REQUEST);
-            }
-
             Serving serving = servingService.getServing(id);
             if (serving == null){
-                return new ResponseEntity<>(new ServerException("Serving with id: "+id+ " not found"),
+                return new ResponseEntity<>(new ServerException(ExceptionMessage.SERVING_NOT_FOUND),
                     HttpStatus.BAD_REQUEST);
             }
             return new ResponseEntity<>(servingService.updateEndTime(serving, updateServingDto.endTime), HttpStatus.OK);

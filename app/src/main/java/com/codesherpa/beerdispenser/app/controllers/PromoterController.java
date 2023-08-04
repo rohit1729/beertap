@@ -17,10 +17,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.codesherpa.beerdispenser.app.dtos.PromoterDto;
 import com.codesherpa.beerdispenser.app.dtos.request.CreatePromoterDto;
+import com.codesherpa.beerdispenser.app.exceptions.ExceptionMessage;
 import com.codesherpa.beerdispenser.app.exceptions.ServerException;
 import com.codesherpa.beerdispenser.app.models.Promoter;
 import com.codesherpa.beerdispenser.app.services.PromoterService;
 import com.codesherpa.beerdispenser.app.utils.ApiHelper;
+
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 
 @RestController
 @RequestMapping("/promoters")
@@ -32,17 +36,19 @@ public class PromoterController {
     private PromoterService promoterService;
 
     @GetMapping
-    public ResponseEntity<List<PromoterDto>> getAllPromoters() {
+    public ResponseEntity<Object> getAllPromoters() {
         try {
             List<Promoter> promoters = promoterService.getAllPromoters();
             return new ResponseEntity<>(promoters.stream().map(ApiHelper::toPromoterDto).toList(), HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            logger.error(ExceptionMessage.PROMOTER_LIST_500, e);
+            return new ResponseEntity<>(new ServerException(ExceptionMessage.PROMOTER_LIST_500), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Object> getPromoterById(@PathVariable Long id) {
+    public ResponseEntity<Object> getPromoterById(
+        @PathVariable @Min(value = 0, message = ExceptionMessage.PROMOTER_ID_INVALID) Long id) {
         try {
             Promoter promoter = promoterService.getPromoter(id);
             if (promoter != null) {
@@ -52,45 +58,49 @@ public class PromoterController {
                 return new ResponseEntity<>("", HttpStatus.NOT_FOUND);
             }
         } catch (Exception e) {
-            return new ResponseEntity<>(new ServerException("Error fetching promoter: " + id),
+            logger.error(ExceptionMessage.PROMOTER_GET_500, e);
+            return new ResponseEntity<>(new ServerException(ExceptionMessage.PROMOTER_GET_500+id),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @PostMapping
-    public ResponseEntity<Object> addPromoter(@RequestBody CreatePromoterDto promoterDto) {
+    public ResponseEntity<Object> addPromoter(
+        @RequestBody @Valid CreatePromoterDto promoterDto) {
         Promoter promoter = new Promoter();
         promoter.setName(promoterDto.getName());
         promoter.setActive(promoterDto.isActive());
-
         try {
             promoter = promoterService.createPromoter(promoter);
             return new ResponseEntity<>(ApiHelper.toPromoterDto(promoter), HttpStatus.CREATED);
         } catch (Exception e) {
-            logger.error("Error encountered creating promoter", e);
-            return new ResponseEntity<>(new ServerException("Error creating promoter"),
+            logger.error(ExceptionMessage.PROMOTER_POST_500, e);
+            return new ResponseEntity<>(new ServerException(ExceptionMessage.PROMOTER_POST_500),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Object> deletePromoter(@PathVariable Long id) {
+    public ResponseEntity<Object> deletePromoter(
+        @PathVariable @Min(value = 1, message = ExceptionMessage.PROMOTER_ID_INVALID) Long id) {
         try {
             promoterService.deletePromoter(id);
             return new ResponseEntity<>(id, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(new ServerException("Error deleting promoter: " + id),
+            logger.error(ExceptionMessage.PROMOTER_DELETE_500, e);
+            return new ResponseEntity<>(new ServerException(ExceptionMessage.PROMOTER_DELETE_500),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @GetMapping("/{id}/earnings")
-    public ResponseEntity<Object> getEarnings(@PathVariable Long id) {
+    public ResponseEntity<Object> getEarnings(
+        @PathVariable @Min(value = 1, message = ExceptionMessage.PROMOTER_ID_INVALID) Long id) {
         try {
             return new ResponseEntity<>(promoterService.getPromoterEarnings(id), HttpStatus.OK);
         } catch (Exception e) {
-            logger.error("Error fetching earnings: ", e);
-            return new ResponseEntity<>(new ServerException("Error fetching earnings for promoter: " + id),
+            logger.error(ExceptionMessage.PROMOTER_EARNINGS_500, e);
+            return new ResponseEntity<>(new ServerException(ExceptionMessage.PROMOTER_EARNINGS_500 + id),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
