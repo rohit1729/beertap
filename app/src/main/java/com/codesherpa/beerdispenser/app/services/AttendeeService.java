@@ -1,15 +1,12 @@
 package com.codesherpa.beerdispenser.app.services;
 
-import org.springframework.stereotype.Service;
-
-import com.codesherpa.beerdispenser.app.dtos.AttendeeDto;
-import com.codesherpa.beerdispenser.app.models.Attendee;
-import com.codesherpa.beerdispenser.app.repositories.AttendeeRepository;
-import com.codesherpa.beerdispenser.app.utils.ApiHelper;
-
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.codesherpa.beerdispenser.app.models.Attendee;
+import com.codesherpa.beerdispenser.app.repositories.AttendeeRepository;
 
 @Service
 public class AttendeeService {

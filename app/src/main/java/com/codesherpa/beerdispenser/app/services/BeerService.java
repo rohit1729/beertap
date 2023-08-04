@@ -5,10 +5,8 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.codesherpa.beerdispenser.app.dtos.BeerDto;
 import com.codesherpa.beerdispenser.app.models.Beer;
 import com.codesherpa.beerdispenser.app.repositories.BeerRepository;
-import com.codesherpa.beerdispenser.app.utils.ApiHelper;
 
 @Service   
 public class BeerService {
