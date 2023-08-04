@@ -87,10 +87,10 @@ public class PromoterController {
     @GetMapping("/{id}/earnings")
     public ResponseEntity<Object> getEarnings(@PathVariable Long id) {
         try {
-            promoterService.deletePromoter(id);
-            return new ResponseEntity<>(id, HttpStatus.OK);
+            return new ResponseEntity<>(promoterService.getPromoterEarnings(id), HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(new ServerException("Error deleting promoter: " + id),
+            logger.error("Error fetching earnings: ", e);
+            return new ResponseEntity<>(new ServerException("Error fetching earnings for promoter: " + id),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

@@ -11,3 +11,5 @@ databaseChangeLog:
       file: classpath:/db/changelog/changes/005-create-tap.yaml
   - include:
       file: classpath:/db/changelog/changes/006-create-serving.yaml
+  - include:
+      file: classpath:/db/changelog/changes/007-seed-data.sql

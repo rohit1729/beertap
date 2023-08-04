@@ -2,6 +2,11 @@ package com.codesherpa.beerdispenser.app.models;
 
 import java.sql.Timestamp;
 
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity; 
 import jakarta.persistence.GeneratedValue;
@@ -43,7 +48,11 @@ public class Serving {
 
     private Float total;
 
+    @CreationTimestamp
+    @Column(name = "created_at")
     private Timestamp createdAt;
 
-    private Timestamp updatedAt;   
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private Timestamp updatedAt;
 }

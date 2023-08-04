@@ -40,23 +40,27 @@ databaseChangeLog:
                   type: timestamp
               - column:
                   constraints:
+                    nullable: true
+                  name: total
+                  type: float
+              - column:
+                  constraints:
                     nullable: false
-                    foreignKeyName: beer_pkey
-                    references: beer(id)
                   name: beer_id
                   type: BIGINT
               - column:
                   constraints:
                     nullable: false
-                    foreignKeyName: promoter_pkey
-                    references: promoter(id)
+                  name: tap_id
+                  type: BIGINT
+              - column:
+                  constraints:
+                    nullable: false
                   name: promoter_id
                   type: BIGINT
               - column:
                   constraints:
                     nullable: false
-                    foreignKeyName: attendee_pkey
-                    references: attendee(id)
                   name: attendee_id
                   type: BIGINT
               - column:
@@ -72,3 +76,27 @@ databaseChangeLog:
                   type: timestamp
                   defaultValue: CURRENT_TIMESTAMP
             tableName: serving
+        - addForeignKeyConstraint:
+            baseTableName: serving
+            baseColumnNames: beer_id
+            referencedTableName: beer
+            referencedColumnNames: id
+            constraintName: FK_serving_beer
+        - addForeignKeyConstraint:
+            baseTableName: serving
+            baseColumnNames: promoter_id
+            referencedTableName: promoter
+            referencedColumnNames: id
+            constraintName: FK_serving_promoter
+        - addForeignKeyConstraint:
+            baseTableName: serving
+            baseColumnNames: tap_id
+            referencedTableName: tap
+            referencedColumnNames: id
+            constraintName: FK_serving_tap
+        - addForeignKeyConstraint:
+            baseTableName: serving
+            baseColumnNames: attendee_id
+            referencedTableName: attendee
+            referencedColumnNames: id
+            constraintName: FK_serving_attendee

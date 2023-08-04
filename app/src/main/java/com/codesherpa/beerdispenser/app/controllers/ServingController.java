@@ -1,5 +1,8 @@
 package com.codesherpa.beerdispenser.app.controllers;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springdoc.api.ErrorMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +24,12 @@ import com.codesherpa.beerdispenser.app.services.AttendeeService;
 import com.codesherpa.beerdispenser.app.services.ServingService;
 import com.codesherpa.beerdispenser.app.services.TapService;
 import com.codesherpa.beerdispenser.app.utils.ApiHelper;
+
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Schema;
+
+import com.codesherpa.beerdispenser.app.exceptions.ExceptionMessage;
 import com.codesherpa.beerdispenser.app.exceptions.ServerException;
 
 import java.util.ArrayList;
@@ -29,6 +38,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/servings")
 public class ServingController {
+
+    Logger logger = LoggerFactory.getLogger(ServingController.class);
 
     @Autowired
     private ServingService servingService;
@@ -87,27 +98,29 @@ public class ServingController {
                 return new ResponseEntity<>(exceptions, HttpStatus.BAD_REQUEST);
             }
         }catch (Exception e){
-            return new ResponseEntity<>(new ServerException("Error creating serving"),
+            logger.error(ExceptionMessage.SERVING_POST_500, e);
+            return new ResponseEntity<>(new ServerException(ExceptionMessage.SERVING_POST_500),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @PutMapping("{id}")
-    public ResponseEntity<Object> updateServing(@RequestBody UpdateServingDto updateServingDto, @PathVariable Long servingId) {
+    @PutMapping("/{id}")
+    public ResponseEntity<Object> updateServing(@RequestBody UpdateServingDto updateServingDto, @PathVariable Long id) {
         try {
             if (updateServingDto.endTime == null){
                 return new ResponseEntity<>(new ServerException("Serving has invalid end time"),
                     HttpStatus.BAD_REQUEST);
             }
 
-            Serving serving = servingService.getServing(servingId);
-            if (serving != null){
-                return new ResponseEntity<>(new ServerException("Serving with id: "+servingId+ "not found"),
+            Serving serving = servingService.getServing(id);
+            if (serving == null){
+                return new ResponseEntity<>(new ServerException("Serving with id: "+id+ " not found"),
                     HttpStatus.BAD_REQUEST);
             }
             return new ResponseEntity<>(servingService.updateEndTime(serving, updateServingDto.endTime), HttpStatus.OK);
         }catch (Exception e){
-            return new ResponseEntity<>(new ServerException("Error creating serving"),
+            logger.error(ExceptionMessage.SERVING_PUT_500, e);
+            return new ResponseEntity<>(new ServerException(ExceptionMessage.SERVING_PUT_500),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

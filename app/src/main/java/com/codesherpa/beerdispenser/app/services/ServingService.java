@@ -1,5 +1,6 @@
 package com.codesherpa.beerdispenser.app.services;
 
+
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -50,6 +51,7 @@ public class ServingService {
         Serving serving = new Serving();
         serving.setAttendeeId(createServingDto.attendeeId);
         serving.setBeerId(beer.getId());
+        serving.setTapId(tap.getId());
         serving.setPromoterId(tap.getPromoterId());
         serving.setFlowPerSecond(tap.getFlowPerSecond());
         serving.setPricePerLitre(beer.getPricePerLitre());

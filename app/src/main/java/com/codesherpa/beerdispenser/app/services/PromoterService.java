@@ -2,6 +2,7 @@ package com.codesherpa.beerdispenser.app.services;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,18 +44,20 @@ public class PromoterService {
         Map<String, Object> earnings = new HashMap<>();
         List<Serving> servings = servingRepository.findByPromoterId(id);
         String totalKey = "total";
-        earnings.put(totalKey, 0);
+        earnings.put(totalKey, 0F);
+        earnings.put("servings", new ArrayList<Serving>());
         servings.forEach((serving) -> {
             if (serving.getEndTime() == null) {
                 // Serving is still active, so count the total till now
                 Float total = serving.getFlowPerSecond()
-                        * (ChronoUnit.SECONDS.between(Instant.now(), serving.getStartTime().toInstant()))
+                        * ChronoUnit.SECONDS.between(serving.getStartTime().toInstant(), Instant.now())
                         * serving.getPricePerLitre();
-                earnings.put(totalKey, (total + serving.getTotal()));
+                earnings.put(totalKey, (total + (Float) earnings.get(totalKey)));
             } else {
                 earnings.put(totalKey, ((Float) earnings.get(totalKey) + serving.getTotal()));
             }
         });
+        earnings.put("servings", servings);
         return earnings;
     }
 

@@ -17,7 +17,7 @@ public class ApiHelper {
 
     public static ServingDto toServingDto(Serving serving) {
         ServingDto dto = new ServingDto();
-        dto.id = serving.getAttendeeId(); 
+        dto.id = serving.getId(); 
         dto.startTime = serving.getStartTime();
         dto.endTime = serving.getEndTime();
         dto.beerId = serving.getBeerId();
