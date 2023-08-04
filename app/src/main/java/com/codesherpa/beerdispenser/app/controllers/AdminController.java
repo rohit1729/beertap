@@ -17,6 +17,8 @@ import com.codesherpa.beerdispenser.app.models.Admin;
 import com.codesherpa.beerdispenser.app.services.AdminService;
 import com.codesherpa.beerdispenser.app.utils.ApiHelper;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/admins")
 public class AdminController {
@@ -51,7 +53,7 @@ public class AdminController {
     }
 
     @PostMapping
-    public ResponseEntity<Object> addAdmin(@RequestBody CreateAdminDto adminDto) {
+    public ResponseEntity<Object> addAdmin(@Valid @RequestBody CreateAdminDto adminDto) {
         Admin admin = new Admin();
         admin.setName(adminDto.getName());
 

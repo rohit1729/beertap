@@ -2,7 +2,6 @@ package com.codesherpa.beerdispenser.app.controllers;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springdoc.api.ErrorMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,9 +24,8 @@ import com.codesherpa.beerdispenser.app.services.ServingService;
 import com.codesherpa.beerdispenser.app.services.TapService;
 import com.codesherpa.beerdispenser.app.utils.ApiHelper;
 
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.enums.ParameterIn;
-import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 
 import com.codesherpa.beerdispenser.app.exceptions.ExceptionMessage;
 import com.codesherpa.beerdispenser.app.exceptions.ServerException;
@@ -61,7 +59,7 @@ public class ServingController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Object> getServingById(@PathVariable Long id) {
+    public ResponseEntity<Object> getServingById(@PathVariable @Min(1) Long id) {
         try {
             Serving serving = servingService.getServing(id);
             if (serving != null) {
@@ -77,30 +75,24 @@ public class ServingController {
     }
 
     @PostMapping
-    public ResponseEntity<Object> addServing(@RequestBody CreateServingDto createServingDto) {
-        try {
-            Tap tap = tapService.getTap(createServingDto.tapId);
-            Attendee attendee = attendeeService.getAttendee(createServingDto.attendeeId);
+    public ResponseEntity<Object> addServing(@Valid @RequestBody CreateServingDto createServingDto) {
+        Tap tap = tapService.getTap(createServingDto.tapId);
+        Attendee attendee = attendeeService.getAttendee(createServingDto.attendeeId);
 
-            if (tap != null && attendee != null){
-                if (tap.getBeerId() == null || tap.getPromoterId() == null){
-                    return new ResponseEntity<>("Tap with id: "+createServingDto.tapId+" not set", HttpStatus.UNPROCESSABLE_ENTITY);
-                }
-                return new ResponseEntity<>(ApiHelper.toServingDto(servingService.startServing(createServingDto)), HttpStatus.OK);
-            }else{
-                List<ServerException> exceptions = new ArrayList<>();
-                if (tap == null){
-                    exceptions.add(new ServerException("Tap with id: "+createServingDto.tapId+" not found"));
-                }
-                if (attendee == null){
-                    exceptions.add(new ServerException("Attendee with id: "+createServingDto.attendeeId+ "not found"));
-                }
-                return new ResponseEntity<>(exceptions, HttpStatus.BAD_REQUEST);
+        if (tap != null && attendee != null){
+            if (tap.getBeerId() == null || tap.getPromoterId() == null){
+                return new ResponseEntity<>("Tap with id: "+createServingDto.tapId+" not set", HttpStatus.UNPROCESSABLE_ENTITY);
             }
-        }catch (Exception e){
-            logger.error(ExceptionMessage.SERVING_POST_500, e);
-            return new ResponseEntity<>(new ServerException(ExceptionMessage.SERVING_POST_500),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(ApiHelper.toServingDto(servingService.startServing(createServingDto)), HttpStatus.OK);
+        }else{
+            List<ServerException> exceptions = new ArrayList<>();
+            if (tap == null){
+                exceptions.add(new ServerException("Tap with id: "+createServingDto.tapId+" not found"));
+            }
+            if (attendee == null){
+                exceptions.add(new ServerException("Attendee with id: "+createServingDto.attendeeId+ "not found"));
+            }
+            return new ResponseEntity<>(exceptions, HttpStatus.BAD_REQUEST);
         }
     }
 
