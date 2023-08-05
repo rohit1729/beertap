@@ -1,5 +1,6 @@
 package com.codesherpa.beerdispenser.app.controllers;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -7,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,6 +30,7 @@ import jakarta.validation.constraints.Min;
 
 @RestController
 @RequestMapping("/attendees")
+@Validated
 public class AttendeeController {
 
     Logger logger = LoggerFactory.getLogger(AttendeeController.class);
@@ -37,19 +40,22 @@ public class AttendeeController {
 
     @GetMapping
     public ResponseEntity<Object> getAllAttendees() {
+        List<ServerException> exceptions = new LinkedList<>();
         try{
             List<AttendeeDto> attendees = attendeeService.getAllAttendees()
                                                 .stream().map(ApiHelper::toAttendeeDto).toList();
             return new ResponseEntity<>(attendees, HttpStatus.OK);
         }catch(Exception e){
             logger.error(ExceptionMessage.ATTENDEE_LIST_500, e);
-            return new ResponseEntity<>(new ServerException(ExceptionMessage.ATTENDEE_GET_500), HttpStatus.INTERNAL_SERVER_ERROR);
+            exceptions.add(new ServerException(ExceptionMessage.ATTENDEE_LIST_500));
+            return new ResponseEntity<>(exceptions, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Object> getAttendeeById(
         @PathVariable @Min(value = 1, message = ExceptionMessage.ATTENDEE_ID_INVALID) Long id) {
+        List<ServerException> exceptions = new LinkedList<>();
         try{
             Attendee attendee = attendeeService.getAttendee(id);
             if (attendee != null){
@@ -59,32 +65,42 @@ public class AttendeeController {
                 return new ResponseEntity<>("", HttpStatus.NOT_FOUND);
             }
         }catch (Exception e){
-            return new ResponseEntity<>(new ServerException(ExceptionMessage.ATTENDEE_GET_500+id), HttpStatus.INTERNAL_SERVER_ERROR);
+            exceptions.add(new ServerException(ExceptionMessage.ATTENDEE_GET_500));
+            return new ResponseEntity<>(exceptions, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteAttendeeById(
         @PathVariable @Min(value = 1, message = ExceptionMessage.ATTENDEE_ID_INVALID) Long id) {
+        List<ServerException> exceptions = new LinkedList<>();
         try {
+            Attendee attendee = attendeeService.getAttendee(id);
+            if (attendee == null){
+                exceptions.add(new ServerException(ExceptionMessage.ATTENDEE_NOT_FOUND));
+                return new ResponseEntity<>(exceptions, HttpStatus.NOT_FOUND);
+            }
             attendeeService.deleteAttendee(id);
             return new ResponseEntity<>(id, HttpStatus.OK);
         }catch (Exception e){
             logger.error(ExceptionMessage.ATTENDEE_DELETE_500, e);
-            return new ResponseEntity<>(new ServerException(ExceptionMessage.ATTENDEE_DELETE_500+id), HttpStatus.INTERNAL_SERVER_ERROR);
+            exceptions.add(new ServerException(ExceptionMessage.ATTENDEE_DELETE_500+id));    
+            return new ResponseEntity<>(exceptions, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @PostMapping
     public ResponseEntity<Object> addAttendee(@Valid @RequestBody CreateAttendeeDto attendeeDto) {
+        List<ServerException> exceptions = new LinkedList<>();
         Attendee attendee = new Attendee();
         attendee.setName(attendeeDto.name);
         try{
             attendee = attendeeService.createAttendee(attendee);
-            return new ResponseEntity<>(ApiHelper.toAttendeeDto(attendee), HttpStatus.OK);
+            return new ResponseEntity<>(ApiHelper.toAttendeeDto(attendee), HttpStatus.CREATED);
         } catch(Exception e) {
             logger.error(ExceptionMessage.ATTENDEE_POST_500, e);
-            return new ResponseEntity<>(new ServerException(ExceptionMessage.ATTENDEE_POST_500), HttpStatus.INTERNAL_SERVER_ERROR);
+            exceptions.add(new ServerException(ExceptionMessage.ATTENDEE_POST_500));
+            return new ResponseEntity<>(exceptions, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

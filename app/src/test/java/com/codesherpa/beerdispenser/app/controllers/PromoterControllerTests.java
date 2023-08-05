@@ -8,19 +8,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
+import org.springframework.test.context.ActiveProfiles;
 
 import com.codesherpa.beerdispenser.app.dtos.PromoterDto;
 import com.codesherpa.beerdispenser.app.dtos.request.CreatePromoterDto;
 import com.codesherpa.beerdispenser.app.models.Promoter;
 import com.codesherpa.beerdispenser.app.repositories.PromoterRepository;
 
-
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @DirtiesContext(classMode = ClassMode.BEFORE_EACH_TEST_METHOD)
+@ActiveProfiles("test")
 class PromoterControllerTests {
 
     @Autowired
@@ -74,7 +76,6 @@ class PromoterControllerTests {
         request = new CreatePromoterDto("Cena", true);
         response = restTemplate.postForEntity("/promoters", request, PromoterDto.class);
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
-        Long promoterIdCena = response.getBody().getId();
 
         // Check promoterId validation
         ResponseEntity<String> invalidPromoterIdResponse = restTemplate.getForEntity("/promoters/0", String.class);
@@ -94,5 +95,52 @@ class PromoterControllerTests {
                 PromoterDto.class);
         assertEquals(getPromoterByIdResponse.getStatusCode(), HttpStatus.OK);
         assertEquals(getPromoterByIdResponse.getBody().getName(), "John");
+    }
+
+    @Test
+    public void testDeletePromoter() throws Exception {
+
+        // Create a promoter
+        CreatePromoterDto request = new CreatePromoterDto("John", true);
+        ResponseEntity<PromoterDto> response = restTemplate.postForEntity("/promoters", request, PromoterDto.class);
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        Long promoterId = response.getBody().getId();
+
+        // Delete the promoter
+        ResponseEntity<Long> deleteResponse = restTemplate.exchange("/promoters/" + promoterId, HttpMethod.DELETE, null,
+                Long.class);
+        assertEquals(HttpStatus.OK, deleteResponse.getStatusCode());
+        assertEquals(promoterId, deleteResponse.getBody());
+
+        // Try to get deleted promoter
+        ResponseEntity<String> getDeletedResponse = restTemplate.getForEntity("/promoters/" + promoterId, String.class);
+        JSONArray getDeletedJson = new JSONArray(getDeletedResponse.getBody());
+        assertEquals(HttpStatus.NOT_FOUND, getDeletedResponse.getStatusCode());
+
+    }
+
+    @Test
+    public void testDeleteNotFoundPromoter() throws Exception {
+
+        // Try to delete a non-existing promoter
+        ResponseEntity<String> deleteResponse = restTemplate.exchange("/promoters/999", HttpMethod.DELETE, null,
+                String.class);
+        JSONArray deleteJson = new JSONArray(deleteResponse.getBody());
+
+        assertEquals(HttpStatus.NOT_FOUND, deleteResponse.getStatusCode());
+        assertEquals("Promoter not found for promoterId ", deleteJson.getJSONObject(0).getString("message"));
+
+    }
+
+    @Test
+    public void testDeleteWithInvalidId() throws Exception {
+
+        // Try to delete with invalid id
+        ResponseEntity<String> deleteResponse = restTemplate.exchange("/promoters/0", HttpMethod.DELETE, null,
+                String.class);
+        JSONArray deleteJson = new JSONArray(deleteResponse.getBody());
+
+        assertEquals(HttpStatus.BAD_REQUEST, deleteResponse.getStatusCode());
+        assertEquals("PromoterId should be greater than 0", deleteJson.getJSONObject(0).getString("message"));
     }
 }

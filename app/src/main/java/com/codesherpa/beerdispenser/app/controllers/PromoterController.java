@@ -93,6 +93,11 @@ public class PromoterController {
         @PathVariable @Min(value = 1, message = ExceptionMessage.PROMOTER_ID_INVALID) Long id) {
         List<ServerException> exceptions = new LinkedList<>();
         try {
+            Promoter promoter = promoterService.getPromoter(id);
+            if (promoter == null) {
+                exceptions.add(new ServerException(ExceptionMessage.PROMOTER_NOT_FOUND));
+                return new ResponseEntity<>(exceptions, HttpStatus.NOT_FOUND);
+            } 
             promoterService.deletePromoter(id);
             return new ResponseEntity<>(id, HttpStatus.OK);
         } catch (Exception e) {
