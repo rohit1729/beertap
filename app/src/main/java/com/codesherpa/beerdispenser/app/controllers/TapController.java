@@ -2,6 +2,7 @@ package com.codesherpa.beerdispenser.app.controllers;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springdoc.api.ErrorMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +26,9 @@ import com.codesherpa.beerdispenser.app.utils.ApiHelper;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 
+import com.codesherpa.beerdispenser.app.exceptions.InputValidationException;
+import com.codesherpa.beerdispenser.app.exceptions.ResourceNotFoundException;
+import com.codesherpa.beerdispenser.app.exceptions.InputValidationException;
 import com.codesherpa.beerdispenser.app.exceptions.ExceptionMessage;
 import com.codesherpa.beerdispenser.app.exceptions.ServerException;
 
@@ -48,74 +52,76 @@ public class TapController {
 
     @GetMapping
     public ResponseEntity<Object> getAllTaps() {
-        List<ServerException> exceptions = new LinkedList<>();
-        try {
-            List<Tap> taps = tapService.getAllTaps();
-            return new ResponseEntity<>(taps.stream().map(ApiHelper::toTapDto).toList(), HttpStatus.OK);
-        } catch (Exception e) {
-            logger.error(ExceptionMessage.TAP_LIST_500, e);
-            exceptions.add(new ServerException(ExceptionMessage.TAP_LIST_500));
-            return new ResponseEntity<>(exceptions, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        List<Tap> taps = tapService.getAllTaps();
+        return new ResponseEntity<>(taps.stream().map(ApiHelper::toTapDto).toList(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Object> getTapById(
-        @PathVariable @Min(value = 1, message = ExceptionMessage.TAP_ID_INVALID) Long id) {
-        List<ServerException> exceptions = new LinkedList<>();
-        try {
-            Tap tap = tapService.getTap(id);
-            if (tap != null) {
-                TapDto tapDto = ApiHelper.toTapDto(tap);
-                return new ResponseEntity<>(tapDto, HttpStatus.OK);
-            } else {
-                exceptions.add(new ServerException(ExceptionMessage.TAP_NOT_FOUND));
-                return new ResponseEntity<>(exceptions, HttpStatus.NOT_FOUND);
-            }
-        } catch (Exception e) {
-            logger.error(ExceptionMessage.TAP_GET_500, e);
-            exceptions.add(new ServerException(ExceptionMessage.TAP_GET_500));
-            return new ResponseEntity<>(exceptions, HttpStatus.INTERNAL_SERVER_ERROR);
+        @PathVariable @Min(value = 1, message = ExceptionMessage.TAP_ID_INVALID) Long id)
+        throws Exception {
+        Tap tap = tapService.getTap(id);
+        if (tap != null) {
+            TapDto tapDto = ApiHelper.toTapDto(tap);
+            return new ResponseEntity<>(tapDto, HttpStatus.OK);
+        } else {
+            throw new ResourceNotFoundException(ExceptionMessage.TAP_NOT_FOUND);
         }
     }
 
     @PostMapping
-    public ResponseEntity<Object> addTap(@Valid @RequestBody CreateTapDto createTapDto) {
-        List<ServerException> exceptions = new LinkedList<>();
-        if (beerService.getBeer(createTapDto.getBeerId()) == null){
-            exceptions.add(new ServerException(ExceptionMessage.BEER_NOT_FOUND));
-            return new ResponseEntity<>(exceptions, HttpStatus.UNPROCESSABLE_ENTITY);
-        }
-        if (promoterService.getPromoter(createTapDto.getPromoterId()) == null){
-            exceptions.add(new ServerException(ExceptionMessage.PROMOTER_NOT_FOUND));
-            return new ResponseEntity<>(exceptions, HttpStatus.UNPROCESSABLE_ENTITY);
-        }
+    public ResponseEntity<Object> addTap(@Valid @RequestBody CreateTapDto createTapDto)
+        throws Exception {
+        validateAddTap(createTapDto);
         Tap tap = createTapDto.toTap();
-        try {
-            tap = tapService.createTap(tap);
-            return new ResponseEntity<>(ApiHelper.toTapDto(tap), HttpStatus.CREATED);
-        } catch (Exception e) {
-            logger.error(ExceptionMessage.TAP_POST_500, e);
-            exceptions.add(new ServerException(ExceptionMessage.TAP_POST_500));
-            return new ResponseEntity<>(exceptions, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        tap = tapService.createTap(tap);
+        return new ResponseEntity<>(ApiHelper.toTapDto(tap), HttpStatus.CREATED);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteTap(
-        @PathVariable @Min(value = 1, message = ExceptionMessage.TAP_ID_INVALID) Long id) {
-        List<ServerException> exceptions = new LinkedList<>();
-        try {
-            if (tapService.getTap(id) == null) {
-                exceptions.add(new ServerException(ExceptionMessage.TAP_NOT_FOUND));
-                return new ResponseEntity<>(exceptions, HttpStatus.NOT_FOUND);
-            }
-            tapService.deleteTap(id);
-            return new ResponseEntity<>(id, HttpStatus.OK);
-        } catch (Exception e) {
-            logger.error(ExceptionMessage.TAP_DELETE_500, e);
-            exceptions.add(new ServerException(ExceptionMessage.TAP_DELETE_500));
-            return new ResponseEntity<>(exceptions, HttpStatus.INTERNAL_SERVER_ERROR);
+        @PathVariable @Min(value = 1, message = ExceptionMessage.TAP_ID_INVALID) Long id) 
+        throws Exception {
+        if (tapService.getTap(id) == null) {
+            throw new ResourceNotFoundException(ExceptionMessage.TAP_NOT_FOUND);
         }
+        tapService.deleteTap(id);
+        return new ResponseEntity<>(id, HttpStatus.OK);
+    }
+
+
+    // Validation methods to validate the request params for controllers
+    private boolean validateAddTap(CreateTapDto createTapDto) throws InputValidationException{
+        Long beerId = createTapDto.getBeerId();
+        InputValidationException inputValidationException = new InputValidationException();
+        if (beerId != null && beerService.getBeer(beerId) == null){
+            inputValidationException.exceptions.add(new ServerException(ExceptionMessage.BEER_NOT_FOUND));
+            inputValidationException.expectedResponseCode = HttpStatus.UNPROCESSABLE_ENTITY;
+            throw inputValidationException;
+        }
+        Long promoterId = createTapDto.getPromoterId();
+        if (promoterId != null && promoterService.getPromoter(promoterId) == null){
+            inputValidationException.exceptions.add(new ServerException(ExceptionMessage.PROMOTER_NOT_FOUND));
+            inputValidationException.expectedResponseCode = HttpStatus.UNPROCESSABLE_ENTITY;
+            throw inputValidationException;
+        }
+        return true;
+    }
+
+    private boolean validateDeleteTap(CreateTapDto createTapDto) throws InputValidationException{
+        Long beerId = createTapDto.getBeerId();
+        InputValidationException inputValidationException = new InputValidationException();
+        if (beerId != null && beerService.getBeer(beerId) == null){
+            inputValidationException.exceptions.add(new ServerException(ExceptionMessage.BEER_NOT_FOUND));
+            inputValidationException.expectedResponseCode = HttpStatus.UNPROCESSABLE_ENTITY;
+            throw inputValidationException;
+        }
+        Long promoterId = createTapDto.getPromoterId();
+        if (promoterId != null && promoterService.getPromoter(promoterId) == null){
+            inputValidationException.exceptions.add(new ServerException(ExceptionMessage.PROMOTER_NOT_FOUND));
+            inputValidationException.expectedResponseCode = HttpStatus.UNPROCESSABLE_ENTITY;
+            throw inputValidationException;
+        }
+        return true;
     }
 }

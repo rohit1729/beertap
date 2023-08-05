@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.codesherpa.beerdispenser.app.dtos.AttendeeDto;
 import com.codesherpa.beerdispenser.app.dtos.request.CreateAttendeeDto;
 import com.codesherpa.beerdispenser.app.exceptions.ExceptionMessage;
+import com.codesherpa.beerdispenser.app.exceptions.ResourceNotFoundException;
 import com.codesherpa.beerdispenser.app.exceptions.ServerException;
 import com.codesherpa.beerdispenser.app.models.Attendee;
 import com.codesherpa.beerdispenser.app.services.AttendeeService;
@@ -40,67 +41,41 @@ public class AttendeeController {
 
     @GetMapping
     public ResponseEntity<Object> getAllAttendees() {
-        List<ServerException> exceptions = new LinkedList<>();
-        try{
-            List<AttendeeDto> attendees = attendeeService.getAllAttendees()
-                                                .stream().map(ApiHelper::toAttendeeDto).toList();
-            return new ResponseEntity<>(attendees, HttpStatus.OK);
-        }catch(Exception e){
-            logger.error(ExceptionMessage.ATTENDEE_LIST_500, e);
-            exceptions.add(new ServerException(ExceptionMessage.ATTENDEE_LIST_500));
-            return new ResponseEntity<>(exceptions, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        List<AttendeeDto> attendees = attendeeService.getAllAttendees()
+                .stream().map(ApiHelper::toAttendeeDto).toList();
+        return new ResponseEntity<>(attendees, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Object> getAttendeeById(
-        @PathVariable @Min(value = 1, message = ExceptionMessage.ATTENDEE_ID_INVALID) Long id) {
-        List<ServerException> exceptions = new LinkedList<>();
-        try{
-            Attendee attendee = attendeeService.getAttendee(id);
-            if (attendee != null){
-                AttendeeDto attendeeDto = ApiHelper.toAttendeeDto(attendee);
-                return new ResponseEntity<>(attendeeDto, HttpStatus.OK);
-            }else{
-                return new ResponseEntity<>("", HttpStatus.NOT_FOUND);
-            }
-        }catch (Exception e){
-            exceptions.add(new ServerException(ExceptionMessage.ATTENDEE_GET_500));
-            return new ResponseEntity<>(exceptions, HttpStatus.INTERNAL_SERVER_ERROR);
+        @PathVariable @Min(value = 1, message = ExceptionMessage.ATTENDEE_ID_INVALID) Long id)
+        throws Exception {
+        Attendee attendee = attendeeService.getAttendee(id);
+        if (attendee != null){
+            AttendeeDto attendeeDto = ApiHelper.toAttendeeDto(attendee);
+            return new ResponseEntity<>(attendeeDto, HttpStatus.OK);
+        }else{
+            throw new ResourceNotFoundException(ExceptionMessage.ATTENDEE_NOT_FOUND);
         }
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteAttendeeById(
-        @PathVariable @Min(value = 1, message = ExceptionMessage.ATTENDEE_ID_INVALID) Long id) {
-        List<ServerException> exceptions = new LinkedList<>();
-        try {
-            Attendee attendee = attendeeService.getAttendee(id);
-            if (attendee == null){
-                exceptions.add(new ServerException(ExceptionMessage.ATTENDEE_NOT_FOUND));
-                return new ResponseEntity<>(exceptions, HttpStatus.NOT_FOUND);
-            }
-            attendeeService.deleteAttendee(id);
-            return new ResponseEntity<>(id, HttpStatus.OK);
-        }catch (Exception e){
-            logger.error(ExceptionMessage.ATTENDEE_DELETE_500, e);
-            exceptions.add(new ServerException(ExceptionMessage.ATTENDEE_DELETE_500+id));    
-            return new ResponseEntity<>(exceptions, HttpStatus.INTERNAL_SERVER_ERROR);
+            @PathVariable @Min(value = 1, message = ExceptionMessage.ATTENDEE_ID_INVALID) Long id)
+            throws Exception {
+        Attendee attendee = attendeeService.getAttendee(id);
+        if (attendee == null) {
+            throw new ResourceNotFoundException(ExceptionMessage.ATTENDEE_NOT_FOUND);
         }
+        attendeeService.deleteAttendee(id);
+        return new ResponseEntity<>(id, HttpStatus.OK);
     }
 
     @PostMapping
     public ResponseEntity<Object> addAttendee(@Valid @RequestBody CreateAttendeeDto attendeeDto) {
-        List<ServerException> exceptions = new LinkedList<>();
         Attendee attendee = new Attendee();
         attendee.setName(attendeeDto.name);
-        try{
-            attendee = attendeeService.createAttendee(attendee);
-            return new ResponseEntity<>(ApiHelper.toAttendeeDto(attendee), HttpStatus.CREATED);
-        } catch(Exception e) {
-            logger.error(ExceptionMessage.ATTENDEE_POST_500, e);
-            exceptions.add(new ServerException(ExceptionMessage.ATTENDEE_POST_500));
-            return new ResponseEntity<>(exceptions, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        attendee = attendeeService.createAttendee(attendee);
+        return new ResponseEntity<>(ApiHelper.toAttendeeDto(attendee), HttpStatus.CREATED);
     }
 }

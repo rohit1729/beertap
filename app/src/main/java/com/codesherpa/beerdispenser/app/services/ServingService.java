@@ -60,8 +60,8 @@ public class ServingService {
         return servingRepository.save(serving);
     }
 
-    public Serving updateEndTime(Serving serving, Timestamp endTime){
-        serving.setEndTime(endTime);
+    public Serving updateEndTime(Serving serving){
+        serving.setEndTime(Timestamp.from(Instant.now()));
         BigDecimal servingDuration = BigDecimal.valueOf(
             ChronoUnit.SECONDS.between(serving.getEndTime().toInstant(), serving.getStartTime().toInstant()));
         BigDecimal total = serving.getPricePerLitre().multiply(servingDuration).multiply(serving.getFlowPerSecond());

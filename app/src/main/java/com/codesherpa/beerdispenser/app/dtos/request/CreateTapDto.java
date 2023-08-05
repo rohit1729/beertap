@@ -24,9 +24,11 @@ public class CreateTapDto {
     @DecimalMin(value = "0.0", inclusive = true, message = ExceptionMessage.TAP_FLOW_PER_LITRE_INVALID)
     public BigDecimal flowPerSecond;
 
+    @NotNull(message = ExceptionMessage.PROMOTER_ID_INVALID)
     @Min(value = 1, message = ExceptionMessage.PROMOTER_ID_INVALID)
     private Long promoterId;
 
+    @NotNull(message = ExceptionMessage.BEER_ID_INVALID)
     @Min(value = 1, message = ExceptionMessage.BEER_ID_INVALID)
     private Long beerId;
 

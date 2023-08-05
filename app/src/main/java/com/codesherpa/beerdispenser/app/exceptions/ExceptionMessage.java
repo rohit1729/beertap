@@ -56,6 +56,7 @@ public class ExceptionMessage {
 
     public static final String TAP_NOT_FOUND = "Tap not found for tapId ";
     public static final String ATTENDEE_NOT_FOUND = "Attendee not found for attendeeId ";
+    public static final String ADMIN_NOT_FOUND = "Attendee not found for attendeeId ";
     public static final String SERVING_NOT_FOUND = "Serving not found for servingId ";
     public static final String BEER_NOT_FOUND = "Beer not found for beerId ";
     public static final String PROMOTER_NOT_FOUND = "Promoter not found for promoterId ";
@@ -63,4 +64,5 @@ public class ExceptionMessage {
     public static final String TAP_NOT_SET = "Tap is not set for tapId ";
     public static final String SERVING_END_TIME_NULL = "Serving end time should not be null";
 
+    public static final String SERVING_COMPLETE = "Serving is already complete";
 }
