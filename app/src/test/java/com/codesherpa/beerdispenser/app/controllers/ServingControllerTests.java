@@ -1,10 +1,13 @@
 package com.codesherpa.beerdispenser.app.controllers;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.time.Instant;
 
-import org.aspectj.lang.annotation.Before;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,10 +19,10 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.event.annotation.BeforeTestMethod;
 
 import com.codesherpa.beerdispenser.app.dtos.AttendeeDto;
 import com.codesherpa.beerdispenser.app.dtos.BeerDto;
@@ -32,8 +35,9 @@ import com.codesherpa.beerdispenser.app.dtos.request.CreatePromoterDto;
 import com.codesherpa.beerdispenser.app.dtos.request.CreateServingDto;
 import com.codesherpa.beerdispenser.app.dtos.request.CreateTapDto;
 import com.codesherpa.beerdispenser.app.exceptions.ExceptionMessage;
-import com.codesherpa.beerdispenser.app.models.Serving;
 import com.codesherpa.beerdispenser.app.repositories.ServingRepository;
+
+import io.swagger.v3.core.util.Json;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @DirtiesContext(classMode = ClassMode.BEFORE_EACH_TEST_METHOD)
@@ -53,7 +57,6 @@ public class ServingControllerTests {
 
     @BeforeEach
     public void setUp() {
-
         // Create test beer
         CreateBeerDto beerRequest = new CreateBeerDto("IPA", BigDecimal.TEN);
         ResponseEntity<BeerDto> beerResponse = restTemplate.postForEntity("/beers", beerRequest, BeerDto.class);
@@ -80,16 +83,16 @@ public class ServingControllerTests {
 
     @Test
     public void testCreateServingInvalidTapId() throws Exception {
-
         // Test invalid tapId
         CreateServingDto invalidTapIdRequest = new CreateServingDto(0L, 1L);
-        ResponseEntity<String> invalidTapIdResponse = restTemplate.postForEntity("/servings", invalidTapIdRequest,
+        ResponseEntity<String> invalidTapIdResponse = restTemplate.postForEntity("/servings",
+                invalidTapIdRequest,
                 String.class);
         assertEquals(HttpStatus.BAD_REQUEST, invalidTapIdResponse.getStatusCode());
         JSONArray invalidTapIdErrors = new JSONArray(invalidTapIdResponse.getBody());
         assertEquals(ExceptionMessage.TAP_ID_INVALID, invalidTapIdErrors.getJSONObject(0).getString("message"));
-        
-                // Test invalid tapId
+
+        // Test invalid tapId
         CreateServingDto nullTapIdRequest = new CreateServingDto(null, 1L);
         ResponseEntity<String> nullTapIdResponse = restTemplate.postForEntity("/servings", nullTapIdRequest,
                 String.class);
@@ -100,10 +103,10 @@ public class ServingControllerTests {
 
     @Test
     public void testCreateServingUnsetTap() throws Exception {
-
         // Create an unset test tap
-        CreateTapDto unSetTapRequest = new CreateTapDto("Tap 1", BigDecimal.ONE, 100L, 100L);
-        ResponseEntity<TapDto> unSetTapResponse = restTemplate.postForEntity("/taps", unSetTapRequest, TapDto.class);
+        CreateTapDto unSetTapRequest = new CreateTapDto("Tap 1", BigDecimal.ONE, null, null);
+        ResponseEntity<TapDto> unSetTapResponse = restTemplate.postForEntity("/taps", unSetTapRequest,
+                TapDto.class);
         TapDto unSetTap = unSetTapResponse.getBody();
         // Test unset tap
         CreateServingDto unsetTapRequest = new CreateServingDto(unSetTap.getId(), attendee.getId());
@@ -125,4 +128,53 @@ public class ServingControllerTests {
         assertEquals(ExceptionMessage.ATTENDEE_ID_INVALID,
                 invalidAttendeeIdErrors.getJSONObject(0).getString("message"));
     }
+
+    @Test
+    public void testCreateValidServing() throws Exception {
+        // Test invalid attendeeId
+        CreateServingDto createServingDto = new CreateServingDto(tap.getId(), attendee.getId());
+        ResponseEntity<ServingDto> servingResponse = restTemplate.postForEntity("/servings",
+                createServingDto, ServingDto.class);
+        assertEquals(HttpStatus.CREATED, servingResponse.getStatusCode());
+        ServingDto serving = servingResponse.getBody();
+        assertEquals(serving.attendeeId, attendee.getId());
+        assertEquals(serving.beerId, beer.getId());
+        assertTrue(serving.flowPerSecond.compareTo(tap.getFlowPerSecond()) == 0);
+        assertEquals(serving.promoterId, promoter.getId());
+        assertEquals(serving.tapId, tap.getId());
+        assertNotNull(serving.startTime);
+        assertTrue(Timestamp.from(Instant.now()).compareTo(serving.startTime) > 0);
+    }
+    
+    @Test
+    public void testGetAllServings() throws Exception {
+        // Test invalid attendeeId
+        CreateServingDto createServingDto = new CreateServingDto(tap.getId(), attendee.getId());
+        ResponseEntity<ServingDto> firstServingResponse = restTemplate.postForEntity("/servings",
+                createServingDto, ServingDto.class);
+        assertEquals(HttpStatus.CREATED, firstServingResponse.getStatusCode());
+
+        ResponseEntity<ServingDto> secondServingResponse = restTemplate.postForEntity("/servings",
+                createServingDto, ServingDto.class);
+        assertEquals(HttpStatus.CREATED, secondServingResponse.getStatusCode());
+ 
+        ResponseEntity<String> servingsResponse = restTemplate.getForEntity("/servings", String.class);
+        JSONArray servingsResponseJson = new JSONArray(servingsResponse.getBody());
+        assertEquals(servingsResponseJson.length(), 2);
+    }
+
+    @Test
+    public void testPutServing() throws Exception {
+        // Test invalid attendeeId
+        CreateServingDto createServingDto = new CreateServingDto(tap.getId(), attendee.getId());
+        ResponseEntity<ServingDto> firstServingResponse = restTemplate.postForEntity("/servings",
+                createServingDto, ServingDto.class);
+        ServingDto serving = firstServingResponse.getBody();
+        assertEquals(HttpStatus.CREATED, firstServingResponse.getStatusCode());
+
+        ResponseEntity<String> result = restTemplate.exchange("/servings/"+serving.id, HttpMethod.PUT, null, String.class);
+        JSONObject resultJson = new JSONObject(result.getBody());
+        assertNotNull(resultJson.getString("endTime"));
+    }
+
 }

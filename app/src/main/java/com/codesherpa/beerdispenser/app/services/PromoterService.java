@@ -41,6 +41,10 @@ public class PromoterService {
         promoterRepository.deleteById(id);
     }
 
+    public Promoter updatePromoter(Promoter promoter){
+        return promoterRepository.save(promoter);
+    }
+
     public Map<String, Object> getPromoterEarnings(Long id) {
         Map<String, Object> earnings = new HashMap<>();
         List<Serving> servings = servingRepository.findByPromoterId(id);

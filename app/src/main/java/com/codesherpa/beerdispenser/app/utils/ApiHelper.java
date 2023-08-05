@@ -17,7 +17,7 @@ public class ApiHelper {
 
     public static ServingDto toServingDto(Serving serving) {
         ServingDto dto = new ServingDto();
-        dto.id = serving.getId(); 
+        dto.id = serving.getId();
         dto.startTime = serving.getStartTime();
         dto.endTime = serving.getEndTime();
         dto.beerId = serving.getBeerId();
@@ -38,22 +38,23 @@ public class ApiHelper {
         return dto;
     }
 
-        public static TapDto toTapDto(Tap tap) {
+    public static TapDto toTapDto(Tap tap) {
         TapDto dto = new TapDto();
         dto.setId(tap.getId());
         dto.setName(tap.getName());
         dto.setPromoterId(tap.getPromoterId());
         dto.setBeerId(tap.getBeerId());
+        dto.setFlowPerSecond(tap.getFlowPerSecond());
         return dto;
     }
-    
+
     public static AdminDto toAdminDto(Admin admin) {
         AdminDto dto = new AdminDto();
         dto.setId(admin.getId());
         dto.setName(admin.getName());
         return dto;
     }
-    
+
     public static BeerDto toBeerDto(Beer beer) {
         BeerDto dto = new BeerDto();
         dto.setId(beer.getId());

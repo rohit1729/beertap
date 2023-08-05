@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.codesherpa.beerdispenser.app.dtos.request.PatchBeerDto;
 import com.codesherpa.beerdispenser.app.models.Beer;
 import com.codesherpa.beerdispenser.app.repositories.BeerRepository;
 
@@ -28,5 +29,11 @@ public class BeerService {
     
     public void deleteBeer(Long id) {
         beerRepository.deleteById(id);
+    }
+
+    public Beer patchBeer(Beer beer, PatchBeerDto patchBeerDto){
+        if (patchBeerDto.getName() != null) beer.setName(patchBeerDto.getName());
+        if (patchBeerDto.getPricePerLitre() != null) beer.getPricePerLitre();
+        return beerRepository.save(beer);
     }
 }

@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.codesherpa.beerdispenser.app.dtos.BeerDto;
 import com.codesherpa.beerdispenser.app.dtos.request.CreateBeerDto;
+import com.codesherpa.beerdispenser.app.dtos.request.PatchBeerDto;
 import com.codesherpa.beerdispenser.app.exceptions.ExceptionMessage;
 import com.codesherpa.beerdispenser.app.exceptions.ResourceNotFoundException;
 import com.codesherpa.beerdispenser.app.models.Beer;
@@ -62,6 +64,18 @@ public class BeerController {
         beer.setPricePerLitre(beerDto.pricePerLitre);
         Beer newBeer = beerService.createBeer(beer);
         return new ResponseEntity<>(ApiHelper.toBeerDto(newBeer), HttpStatus.CREATED);
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<Object> patchBeer(@Valid @RequestBody PatchBeerDto patchBeerDto,
+            @PathVariable @Min(value = 1, message = ExceptionMessage.BEER_ID_INVALID) Long id)
+            throws Exception {
+        Beer beer = beerService.getBeer(id);
+        if (beer == null) {
+            throw new ResourceNotFoundException(ExceptionMessage.BEER_NOT_FOUND);
+        }
+        beer = beerService.patchBeer(beer, patchBeerDto);
+        return new ResponseEntity<>(ApiHelper.toBeerDto(beer), HttpStatus.CREATED);
     }
 
     @DeleteMapping("/{id}")

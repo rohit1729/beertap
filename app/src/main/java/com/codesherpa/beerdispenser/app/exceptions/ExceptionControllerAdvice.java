@@ -1,6 +1,5 @@
 package com.codesherpa.beerdispenser.app.exceptions;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -11,7 +10,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 
 @RestControllerAdvice
@@ -65,7 +63,7 @@ class ExceptionControllerAdvice {
     }
 
     @ExceptionHandler(UnprocessableEntityException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
     @ResponseBody
     public List<ServerException> handleUnprocessableEntityException(UnprocessableEntityException ex) {  
         List<ServerException> exceptions = new LinkedList<>();

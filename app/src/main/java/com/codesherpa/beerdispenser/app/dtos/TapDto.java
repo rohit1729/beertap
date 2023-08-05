@@ -1,5 +1,7 @@
 package com.codesherpa.beerdispenser.app.dtos;
 
+import java.math.BigDecimal;
+
 import lombok.Data;
 
 @Data
@@ -8,4 +10,5 @@ public class TapDto {
     private String name;
     private Long promoterId;
     private Long beerId;
+    private BigDecimal flowPerSecond;
 }

@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -34,6 +35,9 @@ import com.codesherpa.beerdispenser.app.utils.ApiHelper;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 
+/**
+ * Controller to manage beer servings.
+ */
 @RestController
 @RequestMapping("/servings")
 @Validated
@@ -50,12 +54,23 @@ public class ServingController {
     @Autowired
     private AttendeeService attendeeService;
 
+    /**
+     * Gets all active servings.
+     * 
+     * @return List of active serving details
+     */
     @GetMapping
     public ResponseEntity<Object> getAllServings() {
         List<Serving> servings = servingService.getAllServings();
         return new ResponseEntity<>(servings.stream().map(ApiHelper::toServingDto).toList(), HttpStatus.OK);
     }
 
+    /**
+     * Gets serving details by id.
+     * 
+     * @param id Serving id
+     * @return Serving details if found, 404 error otherwise
+     */
     @GetMapping("/{id}")
     public ResponseEntity<Object> getServingById(
             @PathVariable @Min(value = 1, message = ExceptionMessage.SERVING_ID_INVALID) Long id)
@@ -69,6 +84,12 @@ public class ServingController {
         }
     }
 
+    /**
+     * Starts a new serving.
+     * 
+     * @param servingDto Serving details
+     * @return Saved serving details
+     */
     @PostMapping
     public ResponseEntity<Object> addServing(@Valid @RequestBody CreateServingDto createServingDto) throws Exception {
         Tap tap = tapService.getTap(createServingDto.tapId);
@@ -78,11 +99,18 @@ public class ServingController {
             throw new UnprocessableEntityException(ExceptionMessage.TAP_NOT_SET);
         }
         return new ResponseEntity<>(ApiHelper.toServingDto(servingService.startServing(createServingDto)),
-                HttpStatus.OK);
+                HttpStatus.CREATED);
     }
 
+    /**
+     * Stops an active serving.
+     * 
+     * @param id Serving id
+     * @return Updated serving details
+     */
     @PutMapping("/{id}")
-    public ResponseEntity<Object> updateServing(@PathVariable @Min(value = 1, message = ExceptionMessage.SERVING_ID_INVALID) Long id)
+    public ResponseEntity<Object> updateServing(
+            @PathVariable @Min(value = 1, message = ExceptionMessage.SERVING_ID_INVALID) Long id)
             throws Exception {
         Serving serving = servingService.getServing(id);
         if (serving == null) {
@@ -94,22 +122,14 @@ public class ServingController {
         return new ResponseEntity<>(servingService.updateEndTime(serving), HttpStatus.OK);
     }
 
-
-    
     // private methods to validate controllers inputs and models
     private boolean validateAddServing(CreateServingDto createServingDto, Tap tap, Attendee attendee)
-            throws InputValidationException {
-        InputValidationException inputValidationException = new InputValidationException();
+            throws UnprocessableEntityException {
         if (tap == null) {
-            inputValidationException.exceptions.add(
-                    new ServerException(ExceptionMessage.TAP_NOT_FOUND + createServingDto.tapId));
+            throw new UnprocessableEntityException(ExceptionMessage.TAP_NOT_FOUND + createServingDto.tapId);
         }
         if (attendee == null) {
-            inputValidationException.exceptions.add(
-                    new ServerException(ExceptionMessage.ATTENDEE_NOT_FOUND + createServingDto.attendeeId));
-        }
-        if (!inputValidationException.exceptions.isEmpty()) {
-            throw inputValidationException;
+            throw new UnprocessableEntityException(ExceptionMessage.ATTENDEE_NOT_FOUND + createServingDto.attendeeId);
         }
         return true;
     }
