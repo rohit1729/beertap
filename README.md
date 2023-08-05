@@ -39,10 +39,6 @@ git clone https://github.com/rohit1729/beer-dispenser-app.git
 ### Run the application
 ```./gradlew bootRun```
 
-### Running the JAR file directly
-* Download the jar file from here https://github.com/rohit1729/beertap/blob/main/beerdispenser-app.jar
-* Run ``` java -jar beerdispenser-app.jar ```
-
 ### API Reference
 The API documentation can be found at http://localhost:8080/swagger-ui/index.html after starting the application.
 
