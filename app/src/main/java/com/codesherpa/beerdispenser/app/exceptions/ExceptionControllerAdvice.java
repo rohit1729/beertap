@@ -6,8 +6,12 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolationException;
 
 @RestControllerAdvice
 class ExceptionControllerAdvice {
@@ -22,4 +26,15 @@ class ExceptionControllerAdvice {
         });
         return errors;
     }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public List<ServerException> handleConstraintViolationException(ConstraintViolationException ex) {
+        List<ServerException> errors = new ArrayList();
+        ex.getConstraintViolations().forEach((violation) -> {
+            errors.add(new ServerException(violation.getMessage()));
+        });;
+        return errors;
+    }  
 }
