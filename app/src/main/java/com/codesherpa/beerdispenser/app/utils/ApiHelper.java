@@ -89,6 +89,7 @@ public class ApiHelper {
         dto.setId(specification.getId());
         dto.setName(specification.getName());
         dto.setCategoryId(specification.getCategoryId());
+        dto.setUnit(specification.getUnit());
         return dto;
     }
 }

@@ -1,0 +1,53 @@
+databaseChangeLog:
+  - changeSet:
+      id: 011-create-pricing
+      author: rohit
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - tableExists:
+                tableName: pricing
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: pricing_pkey
+                  name: id
+                  type: BIGINT
+              - column:
+                  constraints:
+                    nullable: false
+                  name: material_id
+                  type: number
+              - column:
+                  constraints:
+                    nullable: false
+                  name: category_id
+                  type: number
+              - column:
+                  constraints:
+                    nullable: true
+                  name: price
+                  type: decimal
+              - column:
+                  constraints:
+                    nullable: true
+                  name: margin
+                  type: decimal
+              - column:
+                  constraints:
+                    nullable: false
+                  name: created_at
+                  type: timestamp
+                  defaultValue: NOW
+              - column:
+                  constraints:
+                    nullable: false
+                  name: updated_at
+                  type: timestamp
+                  defaultValue: NOW
+            tableName: pricing
