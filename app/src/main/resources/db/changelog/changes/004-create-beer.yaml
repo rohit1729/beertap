@@ -33,11 +33,11 @@ databaseChangeLog:
                     nullable: false
                   name: created_at
                   type: timestamp
-                  defaultValue: CURRENT_TIMESTAMP
+                  defaultValue: NOW
               - column:
                   constraints:
                     nullable: false
                   name: updated_at
                   type: timestamp
-                  defaultValue: CURRENT_TIMESTAMP
+                  defaultValue: NOW
             tableName: beer

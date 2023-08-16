@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: 010-add-unit-to-specification
+      author: rohit
+      changes:
+        - addColumn:
+            tableName: specification
+            columns:
+              - column:
+                  constraints:
+                    nullable: true
+                  name: unit
+                  type: VARCHAR(250)
+                  

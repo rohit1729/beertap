@@ -3,14 +3,18 @@ package com.codesherpa.beerdispenser.app.utils;
 import com.codesherpa.beerdispenser.app.dtos.AdminDto;
 import com.codesherpa.beerdispenser.app.dtos.AttendeeDto;
 import com.codesherpa.beerdispenser.app.dtos.BeerDto;
+import com.codesherpa.beerdispenser.app.dtos.MaterialDto;
 import com.codesherpa.beerdispenser.app.dtos.PromoterDto;
 import com.codesherpa.beerdispenser.app.dtos.ServingDto;
+import com.codesherpa.beerdispenser.app.dtos.SpecificationDto;
 import com.codesherpa.beerdispenser.app.dtos.TapDto;
 import com.codesherpa.beerdispenser.app.models.Admin;
 import com.codesherpa.beerdispenser.app.models.Attendee;
 import com.codesherpa.beerdispenser.app.models.Beer;
+import com.codesherpa.beerdispenser.app.models.Material;
 import com.codesherpa.beerdispenser.app.models.Promoter;
 import com.codesherpa.beerdispenser.app.models.Serving;
+import com.codesherpa.beerdispenser.app.models.Specification;
 import com.codesherpa.beerdispenser.app.models.Tap;
 
 public class ApiHelper {
@@ -67,6 +71,24 @@ public class ApiHelper {
         AttendeeDto dto = new AttendeeDto();
         dto.setId(attendee.getId());
         dto.setName(attendee.getName());
+        return dto;
+    }
+
+    public static MaterialDto toMaterialDto(Material material) {
+        MaterialDto dto = new MaterialDto();
+        dto.setId(material.getId());
+        dto.setName(material.getName());
+        dto.setPrice(material.getPrice());
+        dto.setMargin(material.getMargin());
+        dto.setCategoryId(material.getCategoryId());
+        return dto;
+    }
+
+    public static SpecificationDto toSpecificationDto(Specification specification) {
+        SpecificationDto dto = new SpecificationDto();
+        dto.setId(specification.getId());
+        dto.setName(specification.getName());
+        dto.setCategoryId(specification.getCategoryId());
         return dto;
     }
 }

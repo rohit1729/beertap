@@ -11,3 +11,9 @@ databaseChangeLog:
       file: classpath:/db/changelog/changes/005-create-tap.yaml
   - include:
       file: classpath:/db/changelog/changes/006-create-serving.yaml
+  - include:
+      file: classpath:/db/changelog/changes/008-create-material.yaml
+  - include:
+      file: classpath:/db/changelog/changes/009-create-specification.yaml
+  - include:
+      file: classpath:/db/changelog/changes/010-add-unit-to-specification.yaml
