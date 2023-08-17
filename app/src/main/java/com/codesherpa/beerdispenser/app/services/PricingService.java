@@ -38,7 +38,18 @@ public class PricingService {
     public void createPricing(List<CreatePricingDto> dtos) {
         for (int i = 0; i < dtos.size(); ++i){
             CreatePricingDto pricingDto = dtos.get(i);
-            createPricing(pricingDto.materialId, pricingDto.specificationId, pricingDto.price);
+            List<Pricing> pricings = pricingRepository.findByMaterialIdAndSpecificationId(pricingDto.getMaterialId(), pricingDto.getSpecificationId());
+            if (!pricings.isEmpty()){
+                Pricing pricing = pricings.get(0);
+                pricing.setPrice(pricingDto.getPrice());
+                pricingRepository.save(pricing);
+            }else{
+                Pricing pricing = new Pricing();
+                pricing.setSpecificationId(pricing.getSpecificationId());
+                pricing.setMaterialId(pricingDto.materialId);
+                pricing.setPrice(pricingDto.getPrice());
+                pricingRepository.save(pricing);
+            }
         }
     }
 
