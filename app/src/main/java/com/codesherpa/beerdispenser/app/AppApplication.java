@@ -27,7 +27,7 @@ public class AppApplication {
 		SpringApplication.run(AppApplication.class, args);
 	}
 
-	/* 
+	
 	@Bean
 	CommandLineRunner runner(MaterialService materialService) {
 		return args -> {
@@ -46,9 +46,9 @@ public class AppApplication {
 			}
 		};
 	}
-	*/
+	
 
-	/* 
+	
 	@Bean
 	CommandLineRunner runner(SpecificationService specificationService) {
 		return args -> {
@@ -67,5 +67,4 @@ public class AppApplication {
 			}
 		};
 	}
-	*/
 }
