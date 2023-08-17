@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: 012-rename-category-id-column.yaml
+      author: rohit
+      changes:
+        - renameColumn:
+            tableName: pricing
+            oldColumnName: category_id
+            newColumnName: specification_id
+            columnDataType: number
+            remarks: "change to the correct col name"

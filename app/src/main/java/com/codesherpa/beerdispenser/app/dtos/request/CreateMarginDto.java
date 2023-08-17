@@ -12,9 +12,9 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreatePricingDto {
+public class CreateMarginDto {
     public Long specificationId;
     public Long materialId;
     @DecimalMin(value = "0.0", inclusive = true, message = ExceptionMessage.BEER_PRICE_PER_LITRE_INVALID)
-    public BigDecimal price;
+    public BigDecimal margin;
 }

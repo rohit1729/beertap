@@ -22,7 +22,7 @@ public class Pricing {
     private Long id;
 
     private Long materialId;
-    private Long categoryId;
+    private Long specificationId;
     private BigDecimal margin;
     private BigDecimal price;
 }

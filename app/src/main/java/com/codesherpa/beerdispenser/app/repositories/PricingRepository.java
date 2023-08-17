@@ -9,5 +9,5 @@ import com.codesherpa.beerdispenser.app.models.Pricing;
 
 public interface PricingRepository extends JpaRepository<Pricing, Long> {
  
-    List<Pricing> findByMaterialIdAndCategoryId(Long materialId, Long categoryId);
+    List<Pricing> findByMaterialIdAndSpecificationId(Long materialId, Long specificationId);
 }
