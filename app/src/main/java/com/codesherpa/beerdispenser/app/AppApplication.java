@@ -48,7 +48,7 @@ public class AppApplication {
 	}
 	
 
-	
+	/* 
 	@Bean
 	CommandLineRunner runner(SpecificationService specificationService) {
 		return args -> {
@@ -67,4 +67,5 @@ public class AppApplication {
 			}
 		};
 	}
+	*/
 }
